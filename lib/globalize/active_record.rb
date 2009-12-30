@@ -133,7 +133,9 @@ module Globalize
             self[name] = value
           }
           define_method name, lambda { |*args|
-            globalize.fetch(args.first || self.class.locale || I18n.locale, name)
+            value = globalize.fetch(args.first || self.class.locale || I18n.locale, name)
+            value = self[name] if !value
+            value 
           }
           alias_method "#{name}_before_type_cast", name
         end
