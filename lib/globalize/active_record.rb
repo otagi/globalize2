@@ -51,7 +51,8 @@ module Globalize
         include InstanceMethods
         extend  ClassMethods, Migration
 
-        before_save :save_translations!
+        before_save :check_default_language
+        after_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
                                 :foreign_key => class_name.foreign_key,
                                 :dependent   => :delete_all,
@@ -186,8 +187,7 @@ module Globalize
 
       protected
 
-        def save_translations!
-          globalize.save_translations!
+        def check_default_language
           if I18n.locale != I18n.default_locale
             # Rollback the default texts (since we are storing translated texts)
             translated_attribute_names.each do |name|
@@ -195,6 +195,10 @@ module Globalize
               self[name] = changes[name.to_s][0].to_s
             end
           end
+        end
+
+        def save_translations!
+          globalize.save_translations!
         end
     end
   end
