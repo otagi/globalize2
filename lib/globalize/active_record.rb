@@ -51,7 +51,7 @@ module Globalize
         include InstanceMethods
         extend  ClassMethods, Migration
 
-        after_save :save_translations!
+        before_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
                                 :foreign_key => class_name.foreign_key,
                                 :dependent   => :delete_all,
@@ -133,9 +133,7 @@ module Globalize
             self[name] = value
           }
           define_method name, lambda { |*args|
-            value = globalize.fetch(args.first || self.class.locale || I18n.locale, name)
-            value = self[name] if !value
-            value 
+            globalize.fetch(args.first || self.class.locale || I18n.locale, name) || self[name]
           }
           alias_method "#{name}_before_type_cast", name
         end
@@ -190,6 +188,13 @@ module Globalize
 
         def save_translations!
           globalize.save_translations!
+          if I18n.locale != I18n.default_locale
+            # Rollback the default texts (since we are storing translated texts)
+            translated_attribute_names.each do |name|
+              # Only rollback the translated fields
+              self[name] = changes[name.to_s][0].to_s
+            end
+          end
         end
     end
   end
