@@ -51,7 +51,6 @@ module Globalize
         include InstanceMethods
         extend  ClassMethods, Migration
 
-        before_save :check_default_language
         after_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
                                 :foreign_key => class_name.foreign_key,
@@ -125,13 +124,18 @@ module Globalize
         def find_first_by_translated_attr_and_locales(name, value)
           query = "#{translated_attr_name(name)} = ? AND #{translated_attr_name('locale')} IN (?)"
           locales = Globalize.fallbacks(locale || I18n.locale).map(&:to_s)
-          find(:first, :joins => :translations, :conditions => [query, value, locales])
+          result = find(:first, :joins => :translations, :conditions => [query, value, locales])
+          result = find(:first, :conditions => [ "`#{name}` = ?", value]) if !result
+          result
         end
 
         def translated_attr_accessor(name)
           define_method "#{name}=", lambda { |value|
+            # Inform ActiveRecord::Dirty module about the change
+            send("#{name}_will_change!") if @attributes.has_key?(name.to_s)
+
             globalize.write(self.class.locale || I18n.locale, name, value)
-            self[name] = value
+            self[name] = value if (self.class.locale || I18n.locale) == I18n.default_locale
           }
           define_method name, lambda { |*args|
             globalize.fetch(args.first || self.class.locale || I18n.locale, name) || self[name]
@@ -162,7 +166,8 @@ module Globalize
       end
 
       def translated_locales
-        translations.map(&:locale)
+        # The original language is also a translation according to the original definitions of the plugin
+        translations.map(&:locale) << I18n.default_locale
       end
 
       def translated_attributes
@@ -186,17 +191,6 @@ module Globalize
       end
 
       protected
-
-        def check_default_language
-          if I18n.locale != I18n.default_locale
-            # Rollback the default texts (since we are storing translated texts)
-            translated_attribute_names.each do |name|
-              # Only rollback the translated fields
-              self[name] = changes[name.to_s][0].to_s
-            end
-          end
-        end
-
         def save_translations!
           globalize.save_translations!
         end
