@@ -40,7 +40,7 @@ module Globalize
         @@locale = locale
       end
 
-      def translates(*attr_names)
+      def translates(*attr_names, &block)
         return if translates?
         options = attr_names.extract_options!
 
@@ -48,6 +48,8 @@ module Globalize
         class_inheritable_writer :required_attributes
         self.translation_class = ActiveRecord.build_translation_class(self, options)
         self.translated_attribute_names = attr_names.map(&:to_sym)
+
+        translation_class.class_eval(&block) if block_given?
 
         include InstanceMethods
         extend  ClassMethods, Migration

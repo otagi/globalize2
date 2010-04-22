@@ -52,4 +52,13 @@ ActiveRecord::Schema.define do
     t.references :user
     t.string     :name
   end
+
+  create_table :translation_class_extenders, :force => true do |t|
+  end
+
+  create_table :translation_class_extender_translations, :force => true do |t|
+    t.references :translation_class_extender
+    t.string :locale
+    t.string :name
+  end
 end

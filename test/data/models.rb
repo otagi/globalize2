@@ -54,3 +54,14 @@ class User < ActiveRecord::Base
   translates :name
   validates_presence_of :name, :email
 end
+
+class TranslationClassExtender < ActiveRecord::Base
+  translates :name do
+
+    validates_presence_of :name
+
+    def custom_method_defined_by_extension
+      true
+    end
+  end
+end

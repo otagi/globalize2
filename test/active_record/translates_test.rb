@@ -84,7 +84,7 @@ class TranslatesTest < ActiveSupport::TestCase
     post.subject = 'title'
     assert_equal 'title', post.subject
   end
-  
+
   test "find_by_xx records have writable attributes" do
     Post.create :subject => "change me"
     p = Post.find_by_subject("change me")
@@ -92,5 +92,12 @@ class TranslatesTest < ActiveSupport::TestCase
     assert_nothing_raised(ActiveRecord::ReadOnlyRecord) do
       p.save
     end
+  end
+
+  test 'extending the translation class with a block' do
+    translated = TranslationClassExtender.with_locale(:en) do
+      TranslationClassExtender.create!(:name => "Name")
+    end
+    assert_true = translated.translations.first.custom_method_defined_by_extension
   end
 end
