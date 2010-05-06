@@ -13,7 +13,7 @@ module Globalize
     end
 
     class << self
-      def build_translation_class(target, options)
+      def build_translation_class(target, options, &block)
         options[:table_name] ||= "#{target.table_name.singularize}_translations"
 
         klass = target.const_defined?(:Translation) ?
@@ -25,6 +25,7 @@ module Globalize
           belongs_to target.name.underscore.gsub('/', '_')
           def locale; read_attribute(:locale).to_sym; end
           def locale=(locale); write_attribute(:locale, locale.to_s); end
+          class_eval(&block) if block_given?
         end
 
         klass
@@ -46,10 +47,8 @@ module Globalize
 
         class_inheritable_accessor :translation_class, :translated_attribute_names
         class_inheritable_writer :required_attributes
-        self.translation_class = ActiveRecord.build_translation_class(self, options)
+        self.translation_class = ActiveRecord.build_translation_class(self, options, &block)
         self.translated_attribute_names = attr_names.map(&:to_sym)
-
-        translation_class.class_eval(&block) if block_given?
 
         include InstanceMethods
         extend  ClassMethods, Migration
