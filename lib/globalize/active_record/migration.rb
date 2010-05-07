@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 module Globalize
   module ActiveRecord
     module Migration
@@ -27,21 +29,40 @@ module Globalize
 
         connection.add_index(
           translation_table_name,
-          translation_table_foreign_key || "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id",
+          foreign_key,
           :name => translation_index_name
+        )
+
+        connection.add_index(
+          translation_table_name,
+          ['locale', foreign_key],
+          :unique => true,
+          :name => translation_unique_index_name
         )
       end
 
+      def foreign_key
+        translation_table_foreign_key || "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id"
+      end
+
       def translation_index_name
-        require 'digest/sha1'
-        # FIXME what's the max size of an index name?
-        index_name = "index_#{translation_table_name}_on_#{table_name.singularize}_id"
-        index_name.size < 50 ? index_name : "index_#{Digest::SHA1.hexdigest(index_name)}"
+        shorten_long_index_name "index_#{translation_table_name}_on_#{table_name.singularize}_id"
+      end
+
+      def translation_unique_index_name
+        shorten_long_index_name "index_#{translation_table_name}_on_locale_#{table_name.singularize}_id"
       end
 
       def drop_translation_table!
         connection.remove_index(translation_table_name, :name => translation_index_name) rescue nil
         connection.drop_table(translation_table_name)
+      end
+
+      private
+
+      def shorten_long_index_name(index_name)
+        # FIXME what's the max size of an index name?
+        index_name.size < 50 ? index_name : "index_#{Digest::SHA1.hexdigest(index_name)}"
       end
     end
   end

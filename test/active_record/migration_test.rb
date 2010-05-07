@@ -10,10 +10,12 @@ class MigrationTest < ActiveSupport::TestCase
   test 'globalize table added' do
     assert !Post.connection.table_exists?(:post_translations)
     assert !Post.connection.index_exists?(:post_translations, :post_id)
+    assert !Post.connection.index_exists?(:post_translations, [:locale, :post_id])
 
     Post.create_translation_table!(:subject => :string, :content => :text)
     assert Post.connection.table_exists?(:post_translations)
     assert Post.connection.index_exists?(:post_translations, :post_id)
+    assert Post.connection.index_exists?(:post_translations, [:locale, :post_id])
 
     columns = Post.connection.columns(:post_translations)
     assert locale = columns.detect { |c| c.name == 'locale' }
@@ -32,9 +34,14 @@ class MigrationTest < ActiveSupport::TestCase
 
   test 'globalize table with foreign_key declaration' do
     assert !PostRevision.connection.table_exists?(:post_translations)
+    assert !PostRevision.connection.index_exists?(:post_translations, :post_id)
+    assert !PostRevision.connection.index_exists?(:post_translations, [:locale, :post_id])
 
     PostRevision.create_translation_table!(:subject => :string, :content => :text)
     assert PostRevision.connection.table_exists?(:post_translations)
+
+    assert PostRevision.connection.index_exists?(:post_translations, :post_id)
+    assert PostRevision.connection.index_exists?(:post_translations, [:locale, :post_id])
 
     columns = PostRevision.connection.columns(:post_translations)
     assert locale = columns.detect { |c| c.name == 'locale' }
@@ -114,9 +121,7 @@ class MigrationTest < ActiveSupport::TestCase
     )
     assert UltraLongModelNameWithoutProper.connection.index_exists?(
       :ultra_long_model_name_without_proper_translations,
-      :name => UltraLongModelNameWithoutProper.send(
-        :translation_index_name
-      )
+      :ultra_long_model_name_without_proper_id
     )
   end
 

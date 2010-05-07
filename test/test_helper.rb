@@ -41,8 +41,10 @@ end
 module ActiveRecord
   module ConnectionAdapters
     class AbstractAdapter
-      def index_exists?(table_name, column_name)
-        indexes(table_name).any? { |index| index.name == index_name(table_name, column_name) }
+      def index_exists?(table_name, column_def)
+        column_def = [column_def] unless column_def.is_a?(Array)
+        column_def.map!(&:to_s)
+        indexes(table_name).any? { |index| index.columns == column_def }
       end
     end
   end
