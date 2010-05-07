@@ -164,7 +164,7 @@ module Globalize
       end
 
       def attributes
-        self.attribute_names.inject({}) do |attrs, name|
+        attribute_names.inject({}) do |attrs, name|
           attrs[name] = read_attribute(name) ||
             (globalize.fetch(I18n.locale, name) rescue nil)
           attrs

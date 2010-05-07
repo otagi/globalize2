@@ -12,7 +12,7 @@ module Globalize
           end
         end
 
-        self.connection.create_table(translation_table_name) do |t|
+        connection.create_table(translation_table_name) do |t|
           if translation_table_foreign_key
             t.integer translation_table_foreign_key
           else
@@ -25,7 +25,7 @@ module Globalize
           t.timestamps
         end
 
-        self.connection.add_index(
+        connection.add_index(
           translation_table_name,
           translation_table_foreign_key || "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id",
           :name => translation_index_name
@@ -35,13 +35,13 @@ module Globalize
       def translation_index_name
         require 'digest/sha1'
         # FIXME what's the max size of an index name?
-        index_name = "index_#{translation_table_name}_on_#{self.table_name.singularize}_id"
+        index_name = "index_#{translation_table_name}_on_#{table_name.singularize}_id"
         index_name.size < 50 ? index_name : "index_#{Digest::SHA1.hexdigest(index_name)}"
       end
 
       def drop_translation_table!
-        self.connection.remove_index(translation_table_name, :name => translation_index_name) rescue nil
-        self.connection.drop_table(translation_table_name)
+        connection.remove_index(translation_table_name, :name => translation_index_name) rescue nil
+        connection.drop_table(translation_table_name)
       end
     end
   end
