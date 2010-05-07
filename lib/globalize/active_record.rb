@@ -210,10 +210,10 @@ module Globalize
         end
       end
 
-      def reload(options = nil)
+      def reload(*args)
         translated_attribute_names.each { |name| @attributes.delete(name.to_s) }
         globalize.reset
-        super(options)
+        super
       end
 
       protected
