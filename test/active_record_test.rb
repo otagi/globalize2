@@ -382,6 +382,13 @@ class ActiveRecordTest < ActiveSupport::TestCase
     assert_equal 0, PostTranslation.count
   end
 
+  test "dependent option as nil" do
+    p = PostRevision.create(:subject => "Foo", :content => "Bar")
+    assert_no_difference 'PostTranslation.count' do
+      p.destroy
+    end
+  end
+
   test "translating subclass of untranslated comment model" do
     translated_comment = TranslatedComment.create(:post => @post)
     assert_nothing_raised { translated_comment.translations }

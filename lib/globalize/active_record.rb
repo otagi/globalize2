@@ -58,10 +58,15 @@ module Globalize
         extend  ClassMethods, Migration
 
         after_save :save_translations!
-        has_many :translations, :class_name  => translation_class.name,
-                                :foreign_key => translation_class.foreign_key || class_name.foreign_key,
-                                :dependent   => :delete_all,
-                                :extend      => HasManyExtensions
+
+        has_many_options = {
+          :class_name  => translation_class.name,
+          :foreign_key => translation_class.foreign_key || class_name.foreign_key,
+          :dependent   => :delete_all,
+          :extend      => HasManyExtensions
+        }
+        has_many_options.delete(:dependent) if options[:not_dependent]
+        has_many :translations, has_many_options
 
         named_scope :with_translations, lambda { |locale|
           conditions = required_attributes.map do |attribute|
