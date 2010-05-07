@@ -13,6 +13,12 @@ class Post < ActiveRecord::Base
   named_scope :foobar, :conditions => { :title => "foobar" }
 end
 
+class PostRevision < ActiveRecord::Base
+  translates :subject, :content, :table_name => 'post_translations', :foreign_key => 'post_id'
+  validates_presence_of :subject
+  named_scope :foobar, :conditions => { :title => "foobar" }
+end
+
 class Blog < ActiveRecord::Base
   has_many :posts, :order => 'id ASC'
 end

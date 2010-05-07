@@ -7,6 +7,10 @@ ActiveRecord::Schema.define do
     t.references :blog
   end
 
+  create_table :post_revisions, :force => true do |t|
+    t.references :blog
+  end
+
   create_table :post_translations, :force => true do |t|
     t.string     :locale
     t.references :post

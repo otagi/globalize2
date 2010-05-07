@@ -100,4 +100,25 @@ class TranslatesTest < ActiveSupport::TestCase
     end
     assert_true = translated.translations.first.custom_method_defined_by_extension
   end
+
+  test 'table_name declaration allows two models to use the same translations table' do
+    assert_equal PostRevision::Translation.table_name, Post::Translation.table_name
+  end
+
+  test 'foreign_key declaration allows second model to use the same translations table' do
+    post = Post.create!(:subject => 'title', :content => 'content')
+    post_revision = PostRevision.new
+    post_revision.id = post.id
+    post_revision.update_attributes(:subject => 'revised title', :content => 'revised content')
+
+    post.reload
+    post_revision.reload
+
+    post_translation = post.translations.first # exercises has_many association
+    post_revision_translation = post_revision.translations.first
+
+    assert_equal post_revision_translation.subject, post_translation.subject
+    assert_equal post_revision_translation.content, post_translation.content
+    assert_equal post_revision, post_revision_translation.post_revision # exercises belongs_to association
+  end
 end

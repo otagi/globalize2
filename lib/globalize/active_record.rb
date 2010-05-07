@@ -22,7 +22,11 @@ module Globalize
 
         klass.class_eval do
           set_table_name(options[:table_name])
-          belongs_to target.name.underscore.gsub('/', '_')
+
+          class_inheritable_accessor :foreign_key
+          self.foreign_key = options[:foreign_key]
+          belongs_to target.name.underscore.gsub('/', '_'), :foreign_key => foreign_key
+
           def locale; read_attribute(:locale).to_sym; end
           def locale=(locale); write_attribute(:locale, locale.to_s); end
           class_eval(&block) if block_given?
@@ -55,7 +59,7 @@ module Globalize
 
         after_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
-                                :foreign_key => class_name.foreign_key,
+                                :foreign_key => translation_class.foreign_key || class_name.foreign_key,
                                 :dependent   => :delete_all,
                                 :extend      => HasManyExtensions
 
@@ -101,6 +105,10 @@ module Globalize
 
       def quoted_translation_table_name
         translation_class.quoted_table_name
+      end
+
+      def translation_table_foreign_key
+        translation_class.foreign_key
       end
 
       def required_attributes

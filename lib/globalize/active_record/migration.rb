@@ -13,7 +13,11 @@ module Globalize
         end
 
         self.connection.create_table(translation_table_name) do |t|
-          t.references table_name.sub(/^#{table_name_prefix}/, "").singularize
+          if translation_table_foreign_key
+            t.integer translation_table_foreign_key
+          else
+            t.references table_name.sub(/^#{table_name_prefix}/, "").singularize, :foreign_key => translation_class.foreign_key
+          end
           t.string :locale
           fields.each do |name, type|
             t.column name, type
@@ -22,8 +26,8 @@ module Globalize
         end
 
         self.connection.add_index(
-          translation_table_name, 
-          "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id",
+          translation_table_name,
+          translation_table_foreign_key || "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id",
           :name => translation_index_name
         )
       end

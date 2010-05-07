@@ -30,6 +30,27 @@ class MigrationTest < ActiveSupport::TestCase
     assert_equal :datetime, updated_at.type
   end
 
+  test 'globalize table with foreign_key declaration' do
+    assert !PostRevision.connection.table_exists?(:post_translations)
+
+    PostRevision.create_translation_table!(:subject => :string, :content => :text)
+    assert PostRevision.connection.table_exists?(:post_translations)
+
+    columns = PostRevision.connection.columns(:post_translations)
+    assert locale = columns.detect { |c| c.name == 'locale' }
+    assert_equal :string, locale.type
+    assert subject = columns.detect { |c| c.name == 'subject' }
+    assert_equal :string, subject.type
+    assert content = columns.detect { |c| c.name == 'content' }
+    assert_equal :text, content.type
+    assert post_id = columns.detect { |c| c.name == 'post_id' }, "foreign key should be post_id by explicit specification"
+    assert_equal :integer, post_id.type
+    assert created_at = columns.detect { |c| c.name == 'created_at' }
+    assert_equal :datetime, created_at.type
+    assert updated_at = columns.detect { |c| c.name == 'updated_at' }
+    assert_equal :datetime, updated_at.type
+  end
+
   test 'globalize table dropped' do
     assert !Post.connection.table_exists?( :post_translations )
     assert !Post.connection.index_exists?( :post_translations, :post_id )
