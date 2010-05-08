@@ -77,6 +77,8 @@ module Globalize
         }
 
         attr_names.each { |attr_name| translated_attr_accessor(attr_name) }
+
+        I18n.available_locales.each{ |l| attr_names.each { |a| translated_attr_locale_accessor(a,l) } }
       end
 
       def translates?
@@ -160,6 +162,17 @@ module Globalize
 
         def translated_attr_name(name)
           "#{translation_class.table_name}.#{name}"
+        end
+
+        def translated_attr_locale_accessor(name, locale)
+          define_method "#{name}_#{locale.to_s.underscore}" do
+            # avoid globalize.fetch in order to bypass fallbacks
+            translations.detect{ |t| t.locale == locale }.try(name)
+          end
+
+          define_method "#{name}_#{locale.to_s.underscore}=" do |value|
+            globalize.write(locale, name, value)
+          end
         end
     end
 

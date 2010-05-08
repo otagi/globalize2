@@ -12,6 +12,9 @@ require 'globalize'
 config = { :adapter => 'sqlite3', :database => ':memory:' }
 ActiveRecord::Base.establish_connection(config)
 
+# locale_specific_attributes_test requires that these be defined before models load
+I18n.available_locales = [:en, :'en-US', :de, :'de-DE', :es, :'fr-FR']
+
 class ActiveSupport::TestCase
   def reset_db!(schema_path = nil)
     schema_path ||= File.expand_path(File.dirname(__FILE__) + '/data/schema.rb')
