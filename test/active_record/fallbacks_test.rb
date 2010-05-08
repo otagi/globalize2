@@ -1,6 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
 require File.expand_path(File.dirname(__FILE__) + '/../data/models')
 
+# TODO: Create some method of enabling this automatically.
 if I18n.respond_to?(:fallbacks)
   class TranslatedTest < ActiveSupport::TestCase
     def setup
@@ -81,7 +82,7 @@ if I18n.respond_to?(:fallbacks)
       assert_equal 'bar', post.subject
     end
 
-    test 'fallbacks with lots of locale switching' do
+    test 'more fallbacks with lots of locale switching' do
       I18n.fallbacks.map :'de-DE' => [ :'en-US' ]
       child = Child.create :content => 'foo'
 
