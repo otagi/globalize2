@@ -221,6 +221,7 @@ module Globalize
             translations.build(:locale => locale.to_s)
           translation.update_attributes!(options[locale])
         end
+        globalize.reset
       end
 
       def reload(*args)

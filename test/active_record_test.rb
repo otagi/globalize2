@@ -356,6 +356,14 @@ class ActiveRecordTest < ActiveSupport::TestCase
     assert ["foo1", "foo2"], [post.subject, post.content]
   end
 
+  test "set_translations updates cache" do
+    Post.locale = :en
+    post = Post.create(:subject => "bar1", :content => "bar1")
+    post.set_translations :en => { :subject => "new en title" }
+
+    assert_equal 'new en title', post.subject
+  end
+
   test "setting invalid attributes raises ArgumentError" do
     Post.locale = :de
     post = Post.create(:subject => "foo1", :content => "foo1")
