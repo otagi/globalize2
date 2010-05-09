@@ -53,4 +53,34 @@ class LocaleSpecificAttributesTest < ActiveSupport::TestCase
       assert_nil post.subject_en_us
     end
   end
+
+  test "writer updates default reader immediately" do
+    I18n.locale = :'en-US'
+    post = Post.create(:subject => 'Original Title')
+    assert_equal 'Original Title', post.subject
+
+    post.subject_en_us = "New Title"
+
+    assert_equal "New Title", post.subject, "default reader does not see updated title"
+  end
+
+  test "writer updates locale-specific reader immediately" do
+    I18n.locale = :'en-US'
+    post = Post.create(:subject => 'Original Title')
+    assert_equal 'Original Title', post.subject_en_us
+
+    post.subject_en_us = "New Title"
+
+    assert_equal "New Title", post.subject_en_us, "locale specific reader does not see updated title"
+  end
+
+  test "writer updates translations association target immediately" do
+    I18n.locale = :'en-US'
+    post = Post.create(:subject => 'Original Title')
+    assert_equal 'Original Title', post.translations.detect{ |t| t.locale == :'en-US' }.subject
+
+    post.subject_en_us = "New Title"
+
+    assert_equal "New Title", post.translations.detect{ |t| t.locale == :'en-US' }.subject, "translations association does not see updated title"
+  end
 end

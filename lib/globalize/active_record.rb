@@ -169,9 +169,9 @@ module Globalize
             # avoid globalize.fetch in order to bypass fallbacks
             translations.detect{ |t| t.locale == locale }.try(name)
           end
-
           define_method "#{name}_#{locale.to_s.underscore}=" do |value|
             globalize.write(locale, name, value)
+            globalize.build_translations
           end
         end
     end
@@ -221,7 +221,7 @@ module Globalize
             translations.build(:locale => locale.to_s)
           translation.update_attributes!(options[locale])
         end
-        globalize.reset
+        reload
       end
 
       def reload(*args)

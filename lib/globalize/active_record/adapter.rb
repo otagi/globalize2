@@ -23,12 +23,16 @@ module Globalize
       end
 
       def save_translations!
+        build_translations true
+      end
+
+      def build_translations(save_translations = false)
         stash.each do |locale, attrs|
-          translation = record.translations.find_or_initialize_by_locale(locale.to_s)
+          translation = record.translations.detect{ |t| locale == t.locale } || record.translations.build(:locale => locale.to_s)
           attrs.each { |attr_name, value| translation[attr_name] = value }
-          translation.save!
+          translation.save! if save_translations
         end
-        stash.clear
+        stash.clear if save_translations
       end
 
       def reset
