@@ -70,8 +70,7 @@ module Globalize
           :class_name  => translation_class.name,
           :foreign_key => translation_class.foreign_key || class_name.foreign_key,
           :dependent   => :delete_all,
-          :extend      => HasManyExtensions,
-          :validate    => false
+          :extend      => HasManyExtensions
         }
         has_many_options.delete(:dependent) if options[:not_dependent]
         has_many :translations, has_many_options
