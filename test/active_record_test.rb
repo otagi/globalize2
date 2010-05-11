@@ -473,19 +473,6 @@ class ActiveRecordTest < ActiveSupport::TestCase
     assert Post.last.to_xml =~ /subject/
     assert Post.last.to_xml =~ /content/
   end
-
-  test "empty translations are deleted" do
-    Thing.locale = :de
-    thing = Thing.create(:content => "de subject")
-    Thing.locale = :en
-    thing.update_attributes(:content => "en subject")
-
-    assert ThingTranslation.exists?(:locale => 'en'), "English subject doesn't exist"
-
-    thing.update_attributes(:content =>"")
-
-    assert ! ThingTranslation.exists?(:locale => 'en'), "English subject exists"
-  end
 end
 
 # TODO error checking for fields that exist in main table, don't exist in

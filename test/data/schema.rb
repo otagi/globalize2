@@ -65,14 +65,4 @@ ActiveRecord::Schema.define do
     t.string :locale
     t.string :name
   end
-
-  create_table :things, :force => true do |t|
-    t.text :content
-  end
-
-  create_table :thing_translations, :force => true do |t|
-    t.references :thing
-    t.string :locale
-    t.string :content
-  end
 end
