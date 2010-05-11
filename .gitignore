@@ -3,3 +3,4 @@ spec/spec/db/*
 vendor
 NOTES
 .DS_Store
+pkg
