@@ -23,13 +23,20 @@ module Globalize
         klass.class_eval do
           set_table_name(options[:table_name])
 
+          attr_accessor :is_blank
           class_inheritable_accessor :foreign_key
           self.foreign_key = options[:foreign_key]
           belongs_to target.name.underscore.gsub('/', '_'), :foreign_key => foreign_key
 
           def locale; read_attribute(:locale).to_sym; end
           def locale=(locale); write_attribute(:locale, locale.to_s); end
+
           class_eval(&block) if block_given?
+
+          # Run after class_eval to allow a before_validation callback to unset attributes.
+          before_validation do |record|
+            record.is_blank = true if target.translated_attribute_names.all?{ |a| record[a].blank? }
+          end
         end
 
         klass

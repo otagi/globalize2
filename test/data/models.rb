@@ -71,3 +71,10 @@ class TranslationClassExtender < ActiveRecord::Base
     end
   end
 end
+
+class ThingTranslation < ActiveRecord::Base
+end
+
+class Thing < ActiveRecord::Base
+  translates :content
+end
