@@ -30,7 +30,7 @@ module Globalize
         stash.each do |locale, attrs|
           translation = record.translations.detect{ |t| locale == t.locale } || record.translations.build(:locale => locale.to_s)
           attrs.each { |attr_name, value| translation[attr_name] = value }
-          translation.save! if save_translations
+          translation.save if save_translations
         end
         stash.clear if save_translations
       end
