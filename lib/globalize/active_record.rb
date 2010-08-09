@@ -170,13 +170,22 @@ module Globalize
         end
 
         def translated_attr_locale_accessor(name, locale)
-          define_method "#{name}_#{locale.to_s.underscore}" do
-            # avoid globalize.fetch in order to bypass fallbacks
-            translations.detect{ |t| t.locale == locale }.try(name)
-          end
-          define_method "#{name}_#{locale.to_s.underscore}=" do |value|
-            globalize.write(locale, name, value)
-            globalize.build_translations
+          if locale == (I18n.default_locale)
+            define_method "#{name}_#{locale.to_s.underscore}" do
+              self[name]
+            end
+            define_method "#{name}_#{locale.to_s.underscore}=" do |value|
+              self[name] = value
+            end
+          else
+            define_method "#{name}_#{locale.to_s.underscore}" do
+              # avoid globalize.fetch in order to bypass fallbacks
+              translations.detect{ |t| t.locale == locale }.try(name)
+            end
+            define_method "#{name}_#{locale.to_s.underscore}=" do |value|
+              globalize.write(locale, name, value)
+              globalize.build_translations
+            end
           end
         end
     end
