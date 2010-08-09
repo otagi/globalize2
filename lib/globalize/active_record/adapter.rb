@@ -28,9 +28,11 @@ module Globalize
 
       def build_translations(save_translations = false)
         stash.each do |locale, attrs|
-          translation = record.translations.detect{ |t| locale == t.locale } || record.translations.build(:locale => locale.to_s)
-          attrs.each { |attr_name, value| translation[attr_name] = value }
-          translation.save if save_translations
+          if locale != I18n.default_locale
+            translation = record.translations.detect{ |t| locale == t.locale } || record.translations.build(:locale => locale.to_s)
+            attrs.each { |attr_name, value| translation[attr_name] = value }
+            translation.save if save_translations
+          end
         end
         stash.clear if save_translations
       end

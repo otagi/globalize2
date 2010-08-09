@@ -4,7 +4,9 @@ ActiveRecord::Schema.define do
   end
 
   create_table :posts, :force => true do |t|
-    t.references :blog
+    t.string      :subject
+    t.text        :content
+    t.references  :blog
   end
 
   create_table :post_revisions, :force => true do |t|
@@ -19,6 +21,7 @@ ActiveRecord::Schema.define do
   end
 
   create_table :parents, :force => true do |t|
+    t.string    :content
   end
 
   create_table :parent_translations, :force => true do |t|
